@@ -28,8 +28,10 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
+        run: |
+          pip install -r requirements.txt
+          pip install streamlit   # Install Streamlit
+
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
@@ -61,7 +63,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -75,8 +76,9 @@ jobs:
         with:
           app-name: 'my-web-app1'
           slot-name: 'Production'
-
+          
       - name: 'Start Streamlit app'
         run: |
-          echo "index.html" 
-          
+          echo "streamlit run app.py" > start_streamlit.sh
+          chmod +x start_streamlit.sh
+          ./start_streamlit.sh
