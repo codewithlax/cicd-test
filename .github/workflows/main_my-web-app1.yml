@@ -25,7 +25,7 @@ jobs:
           pip install -r requirements.txt  # Install all dependencies including Streamlit
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip ./* -r  # Make sure app.py and all necessary files are included
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -42,7 +42,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -60,9 +60,17 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_67945131C91649E4B6F4A85E6B845710 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F97B742AFEF540F08C97EAC8AB394418 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'my-web-app1'
           slot-name: 'Production'
+
+      - name: Start Streamlit app
+        run: |
+          source venv/bin/activate  # Activate virtual environment
+          streamlit run app.py       # Run your Streamlit app
+        env:
+          STREAMLIT_SERVER_HEADLESS: true  # Ensures Streamlit runs without UI (useful for deployment)
+
